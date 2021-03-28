@@ -1,0 +1,63 @@
+---
+- name: Include variables
+  include_vars:
+    file: ../../vars.yaml
+
+- name: Install rpm key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+  when: ansible_facts['distribution']=="Amazon"
+
+- name: Install base rpm repository
+  yum_repository:
+    name: kibana-7.x
+    description: Kibana repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: true
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  when: ansible_facts['distribution']=="Amazon"
+
+- name: Install Kibana Yum Package
+  yum:
+    name: kibana
+    state: present
+    update_cache: true
+  when: ansible_facts['distribution']=="Amazon"
+
+- name: reload systemd config
+  ansible.builtin.systemd:
+    daemon_reload: yes
+
+- name: enable service kibana and ensure it is not masked
+  ansible.builtin.systemd:
+    name: kibana
+    enabled: yes
+    masked: no
+
+- name: set kibana permissions
+  file:
+    path: /usr/share/kibana
+    state: directory
+    recurse: yes
+    owner: kibana
+    group: kibana
+
+- name: Update Kibana Config (IP Address)
+  become: yes
+  lineinfile:
+    destfile: /etc/kibana/kibana.yml
+    regexp: 'server.host'
+    line: 'server.host: "0.0.0.0"'
+
+- name: Update Kibana Config (Kibana URL)
+  become: yes
+  lineinfile:
+    destfile: /etc/kibana/kibana.yml
+    regexp: 'elasticsearch.hosts'
+    line: 'elasticsearch.hosts: ["http://elk1:9200"]'
+
+- name: Restart Kibana Service
+  ansible.builtin.systemd: 
+    name: kibana
+    state: restarted

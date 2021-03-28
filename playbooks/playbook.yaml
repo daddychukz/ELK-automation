@@ -37,13 +37,17 @@
 #   roles:
 #     - elasticsearch_master
 
-# - hosts: elastic_datanode
-#   roles:
-#     - elastic_datanode
+- name: Configure elasticsearch data node
+  hosts: elastic_datanode
+  become: true
+  roles:
+    - elasticsearch_node
 
-# - hosts: kibana
-#   roles:
-#     - kibana
+- name: Configure kibana node
+  hosts: kibana 
+  become: true
+  roles:
+    - kibana
 
 - name: Configure logstash node
   hosts: logstash

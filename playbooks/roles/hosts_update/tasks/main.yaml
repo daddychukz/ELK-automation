@@ -7,10 +7,11 @@
   become: yes
   blockinfile:
     path: /etc/hosts
-    marker: ''
+    marker: '#'
     block: |
       {{ item.ip }} {{ item.name }}
   loop:
     - { name: elk1, ip: "{{ elastic_ip }}" }
+    - { name: elk2, ip: "{{ elastic_node01_ip }}" }
     - { name: elk4, ip: "{{ logstash_ip }}"}
     - { name: elk5, ip: "{{ kibana_ip }}" }
