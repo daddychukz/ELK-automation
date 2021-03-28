@@ -1,0 +1,66 @@
+---
+- name: Include variables
+  include_vars:
+    file: ../../vars.yaml
+
+- name: Install rpm key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+  when: ansible_facts['distribution']=="Amazon"
+
+- name: install base rpm repository
+  yum_repository:
+    name: logstash-7.x
+    description: Logstash repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: true
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  when: ansible_facts['distribution']=="Amazon"
+
+- name: Install Logstash Yum Package
+  yum:
+    name: logstash
+    state: present
+    update_cache: true
+  when: ansible_facts['distribution']=="Amazon"
+
+- name: Create Logstash Pipeline File
+  file:
+      path: /etc/logstash/conf.d/main.conf
+      state: touch
+
+- name: Add Logstash Pipeline Configuration
+  blockinfile:
+      path: /etc/logstash/conf.d/main.conf
+      create: yes
+      marker: ""
+      block: |
+        input {
+          beats {
+            port => 5042
+          }
+        }
+        output {
+          elasticsearch { hosts => ["elk1:9200"]
+          }
+        }
+
+- name: set logstash permissions
+  file:
+    path: /usr/share/logstash
+    state: directory
+    recurse: yes
+    owner: logstash
+    group: logstash
+
+- name: enable service logstash and ensure it is not masked
+  ansible.builtin.systemd:
+    name: logstash
+    enabled: yes
+    masked: no
+
+- name: Restart logstash Service
+  ansible.builtin.systemd: 
+    name: logstash
+    state: restarted

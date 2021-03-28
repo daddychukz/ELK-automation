@@ -1,4 +1,7 @@
 ---
+- name: Include variables
+  include_vars:
+    file: ../../vars.yaml
 
 - name: Add /etc/hosts information
   become: yes
@@ -8,4 +11,6 @@
     block: |
       {{ item.ip }} {{ item.name }}
   loop:
-    - { name: elk1, ip: 34.229.252.149 }
+    - { name: elk1, ip: "{{ elastic_ip }}" }
+    - { name: elk4, ip: "{{ logstash_ip }}"}
+    - { name: elk5, ip: "{{ kibana_ip }}" }

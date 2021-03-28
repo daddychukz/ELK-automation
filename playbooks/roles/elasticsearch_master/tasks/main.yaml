@@ -28,14 +28,10 @@
   wait_for:
     timeout: 2
 
-- name: Add A Blank Elastic Config YAML
-  file:
-      path: "{{ elastic_yaml }}"
-      state: touch
-
 - name: Add Details To Elastic Config YAML
   blockinfile:
     path: "{{ elastic_yaml }}"
+    create: yes
     marker: ''
     block: |
        cluster.name: {{ elastic_cluster_name }}
