@@ -1,0 +1,26 @@
+---
+- name: Include variables
+  include_vars:
+    file: ../../vars.yaml
+
+- name: Install elasticsearch rpm key
+  rpm_key:
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+    state: present
+  when: ansible_facts['distribution']=="Amazon"
+
+- name: install elasticsearch 7.x rpm repository
+  yum_repository:
+    name: elasticsearch-7.x
+    description: Elasticsearch repository for 7.x packages
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgcheck: true
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  when: ansible_facts['distribution']=="Amazon"
+
+- name: install elasticsearch 7.x
+  yum:
+    name: elasticsearch
+    state: present
+    update_cache: true
+  when: ansible_facts['distribution']=="Amazon"

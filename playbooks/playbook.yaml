@@ -1,0 +1,50 @@
+---
+- hosts: all
+  gather_facts: yes
+
+  vars_files:
+    - vars.yaml
+
+  pre_tasks:
+    - name: update yum cache if needed
+      become: true
+      yum:
+        update_cache: yes
+      when: ansible_facts['distribution']=="Amazon"
+
+  tasks:
+    - name: Install Java Runtime Environment 
+      become: true
+      yum:
+       name: "{{ jre_version }}"
+       state: present
+      when: ansible_facts['distribution']=="Amazon"
+
+- name: Update hosts file
+  hosts: all
+  roles:
+    - hosts_update
+
+- name: Install elasticsearch
+  hosts: elasticsearch 
+  become: true
+  roles:
+    - elasticsearch
+
+- name: Configure elasticsearch master node
+  hosts: elasticsearch_master
+  become: true
+  roles:
+    - elasticsearch_master
+
+# - hosts: elastic_datanode
+#   roles:
+#     - elastic_datanode
+
+# - hosts: kibana
+#   roles:
+#     - kibana
+
+# - hosts: logstash
+#   roles:
+#     - logstash

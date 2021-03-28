@@ -1,0 +1,11 @@
+---
+
+- name: Add /etc/hosts information
+  become: yes
+  blockinfile:
+    path: /etc/hosts
+    marker: ''
+    block: |
+      {{ item.ip }} {{ item.name }}
+  loop:
+    - { name: elk1, ip: 34.229.252.149 }

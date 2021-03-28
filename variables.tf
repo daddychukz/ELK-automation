@@ -13,3 +13,7 @@ variable "region" {
 variable "environment" {
   description = "Deployment environment"
 }
+
+variable "instance_type" {
+  description = "EC2 instance type"
+}
