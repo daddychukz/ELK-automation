@@ -73,19 +73,19 @@ resource "aws_security_group" "elk_sg" {
   }
 
   ingress {
-    description = "Elasticsearch"
-    from_port   = 9200
-    to_port     = 9200
+    description = "Kibana"
+    from_port   = 5601
+    to_port     = 5601
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description = "Logstash"
-    from_port   = 5042
-    to_port     = 5042
+    description = "Transport"
+    from_port   = 9300
+    to_port     = 9300
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.subnet_cidr]
   }
 
   ingress {
@@ -93,7 +93,7 @@ resource "aws_security_group" "elk_sg" {
     from_port   = 9200
     to_port     = 9200
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = [var.subnet_cidr]
   }
 
   egress {

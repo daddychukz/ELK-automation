@@ -1,3 +1,4 @@
 locals {
-  nodes = ["elasticsearch", "logstash", "kibana"]
+  nodes = ["elasticsearch", "elastic-node01", "logstash", "kibana"]
 }
+
