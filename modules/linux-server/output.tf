@@ -1,9 +1,5 @@
-output "ip_addresses" {
-  value = aws_instance.elk_node.*.private_ip
-}
-
-output "kibana" {
-  value = aws_instance.elk_node[3].public_ip
+output "public_dns" {
+  value = aws_instance.elk_node.*.public_dns
 }
 
 output "ssh_key_path" {
