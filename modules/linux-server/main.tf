@@ -3,6 +3,7 @@ resource "tls_private_key" "rsa_key" {
   rsa_bits  = 4096
 }
 
+# Generate SSH keys
 resource "aws_key_pair" "key_pair" {
   key_name   = "elk-key"
   public_key = tls_private_key.rsa_key.public_key_openssh
@@ -21,6 +22,7 @@ locals {
   key_file = pathexpand("~/.ssh/elk-key.pem")
 }
 
+# Get AMI image
 data "aws_ssm_parameter" "linux_latest_ami" {
   name = "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
 }

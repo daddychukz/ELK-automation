@@ -1,3 +1,4 @@
+# VPC network
 module "vpc" {
   source = "./modules/vpc"
 
@@ -7,6 +8,7 @@ module "vpc" {
   subnet_cidr       = "10.0.0.0/24"
 }
 
+# Virtual nodes
 module "elk_nodes" {
   source = "./modules/linux-server"
 
