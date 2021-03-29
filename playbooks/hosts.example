@@ -4,18 +4,18 @@ logstash
 kibana
 
 [all:vars]
-ansible_user=
+ansible_user=ec2-user
 ansible_private_key_file=
 ansible_port=22
 
 [elasticsearch:children]
 elasticsearch_master
+elastic_datanode
 
 [elasticsearch_master]
-elk1 ansible_host=
+
+[elastic_datanode]
 
 [logstash]
-elk4 ansible_host=
 
 [kibana]
-elk5 ansible_host=
