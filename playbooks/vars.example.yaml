@@ -15,12 +15,6 @@ elastic_cluster_name: pipedrive
 # Elastic port (e.g. 9200)
 elastic_port: 9200
 
-# Elastic Discovery Seeds
-elastic_discovery_seeds: '"elk1", "elk2"'
-
-# Elastic Initial Master Nodes:
-elastic_master_nodes: '"elk1"'
-
 #minimum JVM Heap size
 elasticsearch_jvm_xms: 2g
 
@@ -28,8 +22,10 @@ elasticsearch_jvm_xms: 2g
 elasticsearch_jvm_xmx: 2g
 
 
-# IP Addresses
+# DNS Addresses
 
-elastic_ip: 
-logstash_ip: 
-kibana_ip: 
+elastic_dns: 
+elastic_node01_dns: 
+elastic_node02_dns: 
+logstash_dns: 
+kibana_dns: 
