@@ -1,9 +1,5 @@
 output "instance_ips" {
-  value = module.elk_nodes.ip_addresses
-}
-
-output "kibana" {
-  value = module.elk_nodes.kibana
+  value = module.elk_nodes.public_dns
 }
 
 output "ssh_key_path" {
