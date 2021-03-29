@@ -41,8 +41,8 @@
        node.name: {{ inventory_hostname }}
        network.host: 0.0.0.0
        http.port: {{ elastic_port }}
-       node.master: true
-       node.data: false
+       node.master: false
+       node.data: true
        node.ingest: false
        discovery.seed_hosts: ["{{ elastic_dns }}", "{{ elastic_node01_dns}}", "{{ elastic_node02_dns}}"]
        cluster.initial_master_nodes: ["{{ elastic_dns }}"]
@@ -51,14 +51,21 @@
        xpack.security.transport.ssl.enabled: true
        xpack.security.transport.ssl.key: /etc/elasticsearch/certs/{{ inventory_hostname }}/{{ inventory_hostname }}.key
        xpack.security.transport.ssl.certificate: /etc/elasticsearch/certs/{{ inventory_hostname }}/{{ inventory_hostname }}.crt
-       xpack.security.transport.ssl.certificate_authorities: [ "/etc/elasticsearch/certs/ca/ca.crt" ]
+       xpack.security.transport.ssl.certificate_authorities: [ "/etc/elasticsearch/certs/ca.crt" ]
        xpack.security.http.ssl.enabled: true
        xpack.security.http.ssl.key: /etc/elasticsearch/certs/{{ inventory_hostname }}/{{ inventory_hostname }}.key
        xpack.security.http.ssl.certificate: /etc/elasticsearch/certs/{{ inventory_hostname }}/{{ inventory_hostname }}.crt
-       xpack.security.http.ssl.certificate_authorities: [ "/etc/elasticsearch/certs/ca/ca.crt" ]
-       xpack.security.enabled: true 
-       xpack.security.http.ssl.verification_mode: certificate
+       xpack.security.http.ssl.certificate_authorities: [ "/etc/elasticsearch/certs/ca.crt" ]
+       xpack.security.enabled: true
        xpack.security.transport.ssl.verification_mode: certificate
+       xpack.security.http.ssl.verification_mode: certificate
+      #  xpack.security.transport.ssl.keystore.path: /etc/elasticsearch/certs/elastic-certificates.p12
+      #  xpack.security.transport.ssl.truststore.path: /etc/elasticsearch/certs/elastic-certificates.p12
+      #  xpack.security.http.ssl.keystore.path: /etc/elasticsearch/certs/elastic-certificates.p12
+      #  xpack.security.http.ssl.truststore.path: /etc/elasticsearch/certs/elastic-certificates.p12
+      #  node.ml: false
+      #  bootstrap.memory_lock: true
+      #  indices.recovery.max_bytes_per_sec: 100mb
 
 - name: Create a certificate directory
   file:
@@ -69,55 +76,27 @@
     path: /etc/elasticsearch/certs
     state: directory
 
-- name: Copy input yml file to server
+- name: Copy the elastic_datanode certs from local to server
   copy: 
-    src: files/instance.yaml 
-    dest: /etc/elasticsearch/certs/instance.yaml 
+    src: "files/{{ inventory_hostname }}"
+    dest: "/etc/elasticsearch/certs/"
 
-- name: Check the presence of certificate file
-  stat:
-    path: /etc/elasticsearch/certs/certs.zip
-  register: elastic_certificates_file
+- name: Copy CA to server
+  copy: 
+    src: "files/ca.crt"
+    dest: "/etc/elasticsearch/certs/ca.crt"
 
-- name: Generate a certificate and private key for master
-  args:
-    chdir: /etc/elasticsearch/certs
-  ansible.builtin.shell: |
-    /usr/share/elasticsearch/bin/elasticsearch-certutil cert --keep-ca-key ca --pem --in /etc/elasticsearch/certs/instance.yaml --out /etc/elasticsearch/certs/certs.zip
-    unzip certs.zip
-  when: not elastic_certificates_file.stat.exists
-
-- name: Pull elastic_datanode certs
-  synchronize:  
-    src: "/etc/elasticsearch/certs/{{ item }}" 
-    dest: "files/"
-    mode: pull
-  with_items:
-    - "{{ elastic_node01_dns }}"
-    - "{{ elastic_node02_dns }}"
-    - "{{ kibana_dns }}"
-    - "{{ logstash_dns }}"
-
-- name: Pull ca.crt file from master
-  run_once: yes
-  ansible.builtin.fetch: 
-    src: /etc/elasticsearch/certs/ca/ca.crt
-    dest: files/ca.crt
-    flat: yes
-  args:
-    chdir: /etc/elasticsearch/certs
-
-- name: set elasticsearch permissions in Home dir
+- name: set elasticsearch permissions in etc dir
   file:
-    path: /usr/share/elasticsearch
+    path: /etc/elasticsearch/
     state: directory
     recurse: yes
     owner: elasticsearch
     group: elasticsearch
 
-- name: set elasticsearch permissions in etc dir
+- name: set elasticsearch permissions in Home dir
   file:
-    path: /etc/elasticsearch/
+    path: /usr/share/elasticsearch
     state: directory
     recurse: yes
     owner: elasticsearch

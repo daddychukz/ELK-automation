@@ -1,0 +1,13 @@
+instances:
+  - name: "ec2-34-211-30-130.us-west-2.compute.amazonaws.com"
+    dns: [ 'ec2-34-211-30-130.us-west-2.compute.amazonaws.com' ]
+  - name: "ec2-34-213-218-134.us-west-2.compute.amazonaws.com"
+    dns: [ 'ec2-34-213-218-134.us-west-2.compute.amazonaws.com' ]
+  - name: "ec2-54-69-91-70.us-west-2.compute.amazonaws.com"
+    dns: [ 'ec2-54-69-91-70.us-west-2.compute.amazonaws.com' ]
+  - name: "ec2-34-211-154-165.us-west-2.compute.amazonaws.com"
+    dns: [ 'ec2-34-211-154-165.us-west-2.compute.amazonaws.com' ]
+  - name: "ec2-34-221-94-251.us-west-2.compute.amazonaws.com"
+    dns: [ 'ec2-34-221-94-251.us-west-2.compute.amazonaws.com' ]
+
+    

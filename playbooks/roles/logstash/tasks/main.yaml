@@ -25,10 +25,29 @@
     update_cache: true
   when: ansible_facts['distribution']=="Amazon"
 
-- name: Create Logstash Pipeline File
+- name: Create a certificate directory
+  file:
+    owner: logstash
+    group: logstash
+    recurse: yes
+    mode: u=rwx,g+rx,o-rwx
+    path: /etc/logstash/certs
+    state: directory
+
+- name: Copy logstash cert file
+  copy: 
+    src: files/{{ logstash_dns }}
+    dest: /etc/logstash/certs/
+
+- name: Copy CA to server
+  copy: 
+    src: "files/ca.crt"
+    dest: "/etc/logstash/certs/ca.crt"
+
+- name: Remove Pipeline Config
   file:
       path: /etc/logstash/conf.d/main.conf
-      state: touch
+      state: absent
 
 - name: Add Logstash Pipeline Configuration
   blockinfile:
@@ -42,7 +61,13 @@
           }
         }
         output {
-          elasticsearch { hosts => ["elk1:9200"]
+          elasticsearch { 
+            hosts => ["https://{{ elastic_dns }}:9200", "https://{{ elastic_node01_dns }}:9200"]
+            cacert => '/etc/logstash/certs/ca.crt'
+            user => "${ES_USER}"
+            password => "${ES_PWD}"
+            ssl => true
+            ssl_certificate_verification => true
           }
         }
 

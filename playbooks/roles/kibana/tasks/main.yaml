@@ -35,6 +35,25 @@
     enabled: yes
     masked: no
 
+- name: Create a certificate directory
+  file:
+    owner: kibana
+    group: kibana
+    recurse: yes
+    mode: u=rwx,g+rx,o-rwx
+    path: /etc/kibana/certs
+    state: directory
+
+- name: Copy the kibana certs from local to server
+  copy: 
+    src: "files/{{ kibana_dns }}"
+    dest: "/etc/kibana/certs/"
+
+- name: Copy CA to server
+  copy: 
+    src: "files/ca.crt"
+    dest: "/etc/kibana/certs/ca.crt"
+
 - name: set kibana permissions
   file:
     path: /usr/share/kibana
@@ -43,19 +62,22 @@
     owner: kibana
     group: kibana
 
-- name: Update Kibana Config (IP Address)
-  become: yes
-  lineinfile:
-    destfile: /etc/kibana/kibana.yml
-    regexp: 'server.host'
-    line: 'server.host: "0.0.0.0"'
+- name: Backup default kibana config
+  ansible.builtin.command: mv /etc/kibana/kibana.yml /etc/kibana/kibana.bkp.yml
 
-- name: Update Kibana Config (Kibana URL)
-  become: yes
-  lineinfile:
-    destfile: /etc/kibana/kibana.yml
-    regexp: 'elasticsearch.hosts'
-    line: 'elasticsearch.hosts: ["http://elk1:9200"]'
+- name: Add Details To Kibana Config YAML
+  blockinfile:
+    path: /etc/kibana/kibana.yml
+    create: yes
+    marker: ''
+    block: |
+      server.host: 0.0.0.0
+      server.ssl.enabled: true
+      server.ssl.key: /etc/kibana/certs/{{ kibana_dns }}/{{ kibana_dns }}.key
+      server.ssl.certificate: /etc/kibana/certs/{{ kibana_dns }}/{{ kibana_dns }}.crt
+      elasticsearch.hosts: ["https://{{ elastic_dns }}:9200", "https://{{ elastic_node01_dns }}:9200", "https://{{ elastic_node02_dns }}:9200"]
+      elasticsearch.ssl.certificateAuthorities: [ "/etc/kibana/certs/ca.crt" ]
+      elasticsearch.ssl.verificationMode: "full" 
 
 - name: Restart Kibana Service
   ansible.builtin.systemd: 
