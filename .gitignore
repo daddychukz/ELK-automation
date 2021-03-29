@@ -31,3 +31,6 @@ terraform.tfvars
 # example: *tfplan*
 vars.yaml
 hosts
+playbooks/files/*.crt
+playbooks/files/ec2*
+
